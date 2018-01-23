@@ -3,6 +3,7 @@ package at.fhooe.mc.emg.client.things
 import android.app.Activity
 import android.os.Bundle
 import android.util.Log
+import at.fhooe.mc.emg.messaging.EmgMessaging
 import com.google.android.things.pio.PeripheralManagerService
 
 /**
@@ -33,6 +34,21 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "Setup EMG client with version ${getString(R.string.client_emg_version)}")
         btClient = ThingsBluetoothClient(PeripheralManagerService())
+
+        // Ugly way to set the message interval to 1 second - TODO remove later
+        btClient.handleMessage(EmgMessaging.buildFrequencyMessage(1.toDouble()))
+    }
+
+    override fun onStart() {
+        super.onStart()
+        btClient.start()
+        Log.d(TAG, "EmgClient started")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        btClient.stop()
+        Log.d(TAG, "Shutdown EmgClient")
     }
 
     companion object {
