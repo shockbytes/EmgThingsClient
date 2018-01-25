@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">EmgThingsClient</string>
+    <string name="app_name">AndroidThingsBluetoothClient</string>
+
+    <string name="data_provided">Data provided: %s</string>
 </resources>

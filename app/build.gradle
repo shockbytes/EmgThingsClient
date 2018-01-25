@@ -2,7 +2,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
-def emgVersion = "0.9.3"
+def emgVersion = "0.9.6"
+def rxAndroidVersion = "2.0.1"
 
 android {
     compileSdkVersion 26
@@ -12,6 +13,7 @@ android {
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
+        vectorDrawables.useSupportLibrary = true
     }
     buildTypes {
         release {
@@ -31,7 +33,11 @@ dependencies {
     implementation 'com.github.ivbaranov:rxbluetooth2:2.0.1'
     implementation 'nz.geek.android.things:things-drivers:1.1.0'
 
+    implementation 'com.jakewharton:kotterknife:0.1.0-SNAPSHOT'
+
+    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
 
     implementation "com.github.shockbytes.EmgFramework:client:$emgVersion"
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
 }
