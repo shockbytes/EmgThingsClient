@@ -1,5 +1,6 @@
 package at.fhooe.mc.emg.client.things.client
 
+import android.util.Log
 import android.widget.TextView
 import at.fhooe.mc.emg.client.EmgClient
 import at.fhooe.mc.emg.client.things.bluetooth.EmgBluetoothConnection
@@ -41,9 +42,10 @@ class ThingsBluetoothClient(private val emgSensor: EmgSensor,
     override fun setupTransmission() {
         emgSensor.setup()
         bluetoothConnection.setup(Consumer {
-            debugView?.append("Connected to: $it")
+            debugView?.append("Connected to: $it\n")
+            startDataTransfer()
         }, Consumer {
-            debugView?.append("Connection error: $it")
+            debugView?.append("Connection error: $it\n")
         })
         // If connected request read access and integrate #handleMessage()
     }
@@ -55,6 +57,19 @@ class ThingsBluetoothClient(private val emgSensor: EmgSensor,
 
     fun attachDebugView(textView: TextView) {
         this.debugView = textView
+    }
+
+    private fun startDataTransfer() {
+        startTransmission()
+
+        bluetoothConnection.subscribeToIncomingMessages().subscribe({
+            handleMessage(it)
+        }, {
+            it.printStackTrace()
+            Log.wtf("EmgThings", it.localizedMessage)
+            bluetoothConnection.closeAfterDisconnect()
+            debugView?.append("Disconnected from remote device")
+        })
     }
 
     // TODO Remove in production code

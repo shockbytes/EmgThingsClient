@@ -1,5 +1,7 @@
 package at.fhooe.mc.emg.client.things.util
 
+import android.content.Context
+import android.provider.Settings
 import java.net.NetworkInterface
 import java.util.*
 import kotlin.experimental.and
@@ -101,4 +103,10 @@ object ThingsUtils {
         return ""
     }
 
+    /**
+     * Returns the Mac address of the bluetooth adapter
+     */
+    fun getBluetoothMacAddress(context: Context): String {
+        return Settings.Secure.getString(context.contentResolver, "bluetooth_address")
+    }
 }

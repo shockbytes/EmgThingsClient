@@ -18,6 +18,8 @@ interface EmgBluetoothConnection {
 
     fun subscribeToIncomingMessages(): Flowable<String>
 
+    fun closeAfterDisconnect()
+
     fun tearDown()
 
 }

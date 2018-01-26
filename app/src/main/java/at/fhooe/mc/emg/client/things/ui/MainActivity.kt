@@ -1,8 +1,6 @@
 package at.fhooe.mc.emg.client.things.ui
 
 import android.app.Activity
-import android.bluetooth.BluetoothAdapter
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -59,9 +57,6 @@ class MainActivity : Activity() {
                 1000)
         setupConnectionInfo()
 
-        // Do not use this at the moment, see if it works without it
-        // setBluetoothDiscoverable()
-
         // TODO Remove in production mode
         // ---------------------------------------------------------
         btClient.setDebugListener {
@@ -95,20 +90,15 @@ class MainActivity : Activity() {
         txtLogging.append("$s\n")
     }
 
-    private fun setBluetoothDiscoverable() {
-        val discoverableIntent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE)
-        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300)
-        startActivity(discoverableIntent)
-    }
-
     private fun setupConnectionInfo() {
 
         val macWifi = ThingsUtils.getMACAddress("wlan0")
         val macEth = ThingsUtils.getMACAddress("eth0")
+        val btMac = ThingsUtils.getBluetoothMacAddress(this)
         val ipv4 = ThingsUtils.getIPAddress(true)
         val ipv6 = ThingsUtils.getIPAddress(false)
 
-        val out = "Mac Wifi: $macWifi\nMac Eth: $macEth\nIPv4: $ipv4\nIPv6: $ipv6"
+        val out = "Mac BT: $btMac\nMac Wifi: $macWifi\nMac Eth: $macEth\nIPv4: $ipv4\nIPv6: $ipv6"
         txtConnectionInfo.text = out
     }
 
