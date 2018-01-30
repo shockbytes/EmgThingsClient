@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
-def emgVersion = "0.9.6"
+def emgVersion = "0.9.8"
 def rxAndroidVersion = "2.0.1"
 
 android {
@@ -22,6 +22,11 @@ android {
         }
         debug {
             resValue "string", "client_emg_version", emgVersion
+            resValue "string", "debug_platform", "Debug without sensing"
+        }
+        debug_with_peripherals {
+            resValue "string", "client_emg_version", emgVersion
+            resValue "string", "debug_platform", "Debug with peripherals"
         }
     }
 }

@@ -6,6 +6,7 @@ import com.github.ivbaranov.rxbluetooth.BluetoothConnection
 import com.github.ivbaranov.rxbluetooth.RxBluetooth
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 import java.util.*
@@ -16,8 +17,7 @@ import java.util.*
  * Date: 24.01.2018.
  */
 
-class RxEmgBluetoothConnection(context: Context,
-                               override val localDeviceName: String) : EmgBluetoothConnection {
+class RxEmgBluetoothConnection(context: Context) : EmgBluetoothConnection {
 
     private var rxBluetooth = RxBluetooth(context)
     private var bluetoothAdapter: BluetoothAdapter? = null
@@ -26,12 +26,20 @@ class RxEmgBluetoothConnection(context: Context,
 
     private val uuid = UUID.fromString("5f77cdab-8f48-4784-9958-d2736f4727c5")
 
+    // --------------------------------------------
+    private var successHandler: Consumer<String>? = null
+    private var errorHandler: Consumer<Throwable>? = null
+
+    private var connectionDisposable: Disposable? = null
+
     override fun sendMessage(msg: String) {
         // \n is needed, otherwise the receiving site won't recognize incoming stream
         connection?.send("$msg\n")
     }
 
     override fun setup(successHandler: Consumer<String>?, errorHandler: Consumer<Throwable>?) {
+        this.successHandler = successHandler
+        this.errorHandler = errorHandler
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
 
@@ -43,7 +51,8 @@ class RxEmgBluetoothConnection(context: Context,
         // Enable Bluetooth without asking the user
         bluetoothAdapter?.enable()
 
-        rxBluetooth.observeBluetoothSocket("things_client_bluetooth_socket", uuid)
+        connectionDisposable = rxBluetooth
+                .observeBluetoothSocket("things_client_bluetooth_socket", uuid)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({
@@ -59,15 +68,18 @@ class RxEmgBluetoothConnection(context: Context,
         return connection?.observeStringStream()
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribeOn(Schedulers.io())
-                ?: Flowable.error(NullPointerException("Connection is null!"))
+                ?: Flowable.error(NullPointerException("Incoming messages - Connection is null!"))
     }
 
     override fun closeAfterDisconnect() {
+        connectionDisposable?.dispose()
         connectedDeviceName = null
         connection?.closeConnection()
+        setup(successHandler, errorHandler)
     }
 
     override fun tearDown() {
+        connectionDisposable?.dispose()
         rxBluetooth.cancelDiscovery()
         connection?.closeConnection()
     }

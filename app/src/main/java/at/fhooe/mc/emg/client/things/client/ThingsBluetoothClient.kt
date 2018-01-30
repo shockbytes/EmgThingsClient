@@ -1,11 +1,13 @@
 package at.fhooe.mc.emg.client.things.client
 
-import android.util.Log
+import android.content.Context
 import android.widget.TextView
 import at.fhooe.mc.emg.client.EmgClient
 import at.fhooe.mc.emg.client.things.bluetooth.EmgBluetoothConnection
+import at.fhooe.mc.emg.client.things.bluetooth.RxEmgBluetoothConnection
 import at.fhooe.mc.emg.client.things.sensing.EmgSensor
 import at.fhooe.mc.emg.messaging.EmgMessaging
+import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Consumer
 
 /**
@@ -17,17 +19,21 @@ import io.reactivex.functions.Consumer
  *
  */
 
-class ThingsBluetoothClient(private val emgSensor: EmgSensor,
-                            private val bluetoothConnection: EmgBluetoothConnection,
+class ThingsBluetoothClient(context: Context,
+                            private val emgSensor: EmgSensor,
                             initialPeriod: Long = 100) : EmgClient() {
 
     override val protocolVersion = EmgMessaging.ProtocolVersion.V1
 
+    private val bluetoothConnection: EmgBluetoothConnection
+
     private var debugListener: ((String) -> Unit)? = null
     private var debugView: TextView? = null
+    private var msgDisposable: Disposable? = null
 
     init {
         period = initialPeriod
+        bluetoothConnection = RxEmgBluetoothConnection(context)
     }
 
     override fun provideData(): List<Double> {
@@ -53,6 +59,7 @@ class ThingsBluetoothClient(private val emgSensor: EmgSensor,
     override fun tearDown() {
         emgSensor.tearDown()
         bluetoothConnection.tearDown()
+        msgDisposable?.dispose()
     }
 
     fun attachDebugView(textView: TextView) {
@@ -62,14 +69,19 @@ class ThingsBluetoothClient(private val emgSensor: EmgSensor,
     private fun startDataTransfer() {
         startTransmission()
 
-        bluetoothConnection.subscribeToIncomingMessages().subscribe({
+        msgDisposable = bluetoothConnection.subscribeToIncomingMessages().subscribe({
             handleMessage(it)
         }, {
             it.printStackTrace()
-            Log.wtf("EmgThings", it.localizedMessage)
-            bluetoothConnection.closeAfterDisconnect()
-            debugView?.append("Disconnected from remote device")
+            closeConnectionAfterDisconnect()
         })
+    }
+
+    private fun closeConnectionAfterDisconnect() {
+        stopTransmission()
+        bluetoothConnection.closeAfterDisconnect()
+        debugView?.append("Disconnected from remote device\n")
+        msgDisposable?.dispose()
     }
 
     // TODO Remove in production code

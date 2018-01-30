@@ -10,8 +10,6 @@ import io.reactivex.functions.Consumer
 
 interface EmgBluetoothConnection {
 
-    val localDeviceName: String
-
     fun sendMessage(msg: String)
 
     fun setup(successHandler:Consumer<String>? = null, errorHandler: Consumer<Throwable>? = null)

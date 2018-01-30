@@ -3,8 +3,8 @@
 This is a client implementation for the Android things platform.
 This project is a part of the EmgFramework project.
 
-### Open points
+### Version 1.0
 
+- [x] Bluetooth Connection
 - [ ] Sensor Reading from ADC
-- [ ] Bluetooth Connection
-- [ ] Code Cleanup
+- [ ] Code Cleanup (Remove debugging stuff)

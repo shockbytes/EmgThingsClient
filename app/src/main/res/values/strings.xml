@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">AndroidThingsBluetoothClient</string>
+    <string name="app_name">AndroidThings BluetoothClient</string>
 
     <string name="data_provided">Data provided: %s</string>
 </resources>
