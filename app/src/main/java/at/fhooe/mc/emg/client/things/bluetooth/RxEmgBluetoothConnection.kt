@@ -17,7 +17,8 @@ import java.util.*
  * Date: 24.01.2018.
  */
 
-class RxEmgBluetoothConnection(context: Context) : EmgBluetoothConnection {
+class RxEmgBluetoothConnection(context: Context,
+                               private val bluetoothName: String) : EmgBluetoothConnection {
 
     private var rxBluetooth = RxBluetooth(context)
     private var bluetoothAdapter: BluetoothAdapter? = null
@@ -42,11 +43,11 @@ class RxEmgBluetoothConnection(context: Context) : EmgBluetoothConnection {
         this.errorHandler = errorHandler
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-
         if (bluetoothAdapter == null) {
             errorHandler?.accept(NullPointerException("BluetoothAdapter is not present on device!"))
             return
         }
+        bluetoothAdapter?.name = bluetoothName
 
         // Enable Bluetooth without asking the user
         bluetoothAdapter?.enable()

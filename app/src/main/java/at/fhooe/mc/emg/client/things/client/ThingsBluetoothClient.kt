@@ -20,6 +20,7 @@ import io.reactivex.functions.Consumer
  */
 
 class ThingsBluetoothClient(context: Context,
+                            bluetoothName: String,
                             private val emgSensor: EmgSensor,
                             initialPeriod: Long = 100) : EmgClient() {
 
@@ -33,7 +34,7 @@ class ThingsBluetoothClient(context: Context,
 
     init {
         period = initialPeriod
-        bluetoothConnection = RxEmgBluetoothConnection(context)
+        bluetoothConnection = RxEmgBluetoothConnection(context, bluetoothName)
     }
 
     override fun provideData(): List<Double> {
@@ -51,7 +52,7 @@ class ThingsBluetoothClient(context: Context,
             debugView?.append("Connected to: $it\n")
             startDataTransfer()
         }, Consumer {
-            debugView?.append("Connection error: $it\n")
+            debugView?.append("Bluetooth connection error: $it\n")
         })
         // If connected request read access and integrate #handleMessage()
     }
@@ -69,6 +70,7 @@ class ThingsBluetoothClient(context: Context,
     private fun startDataTransfer() {
         startTransmission()
 
+        // If connected request read access and integrate #handleMessage()
         msgDisposable = bluetoothConnection.subscribeToIncomingMessages().subscribe({
             handleMessage(it)
         }, {

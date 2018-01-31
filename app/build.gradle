@@ -19,14 +19,10 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            resValue "string", "client_emg_version", emgVersion
         }
         debug {
             resValue "string", "client_emg_version", emgVersion
-            resValue "string", "debug_platform", "Debug without sensing"
-        }
-        debug_with_peripherals {
-            resValue "string", "client_emg_version", emgVersion
-            resValue "string", "debug_platform", "Debug with peripherals"
         }
     }
 }

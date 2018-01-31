@@ -1,25 +1,24 @@
 package at.fhooe.mc.emg.client.things.ui
 
 import android.app.Activity
+import android.bluetooth.BluetoothAdapter
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
-import at.fhooe.mc.emg.client.things.BuildConfig
 import at.fhooe.mc.emg.client.things.R
 import at.fhooe.mc.emg.client.things.client.ThingsBluetoothClient
-import at.fhooe.mc.emg.client.things.sensing.AdcEmgSensor
 import at.fhooe.mc.emg.client.things.sensing.DummyEmgSensor
 import at.fhooe.mc.emg.client.things.sensing.EmgSensor
 import at.fhooe.mc.emg.client.things.sensing.EmgSensorProvider
-import at.fhooe.mc.emg.client.things.util.ThingsUtils
+import at.fhooe.mc.emg.client.things.update.EmgUpdateManager
+import at.fhooe.mc.emg.client.things.update.PhoneEmgUpdateManager
 import com.google.android.things.device.DeviceManager
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotterknife.bindView
 import java.util.*
-
 
 
 /**
@@ -45,24 +44,30 @@ import java.util.*
 class MainActivity : Activity(), EmgSensorProvider {
 
     private val txtDataOutput: TextView by bindView(R.id.txtDataOutput)
+
     private val txtLogging: TextView by bindView(R.id.txtLogging)
-    private val txtConnectionInfo: TextView by bindView(R.id.txtConnectionInfo)
-    private val btnReload: Button by bindView(R.id.btnReload)
+    private val btnDiscoverable: Button by bindView(R.id.btnDiscoverable)
     private val btnReboot: Button by bindView(R.id.btnReboot)
+    private val btnUpdates: Button by bindView(R.id.btnUpdates)
 
     private lateinit var btClient: ThingsBluetoothClient
+    private lateinit var updateManager: EmgUpdateManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        actionBar?.subtitle = getString(R.string.debug_platform)
         log("Setup EMG client with version ${getString(R.string.client_emg_version)}")
-        setupConnectionInfo()
 
-        btClient = ThingsBluetoothClient(this, provideEmgSensor(), 1000)
+        btClient = ThingsBluetoothClient(this, "EmgBluetooth",
+                provideEmgSensor(), 1000)
         btClient.attachDebugView(txtLogging)
 
+        updateManager = PhoneEmgUpdateManager()
+        updateManager.setPolicy(true, 24)
+
         btnReboot.setOnClickListener { confirmReboot() }
+        btnDiscoverable.setOnClickListener { makeDiscoverable() }
+        btnUpdates.setOnClickListener { checkForUpdates() }
 
         // TODO Remove in production mode
         // ---------------------------------------------------------
@@ -70,10 +75,6 @@ class MainActivity : Activity(), EmgSensorProvider {
             Single.fromCallable {
                 txtDataOutput.text = getString(R.string.data_provided, it)
             }.subscribeOn(AndroidSchedulers.mainThread()).subscribe()
-        }
-        btnReload.setOnClickListener {
-            setupConnectionInfo()
-            Toast.makeText(this, "Connection info reloaded!", Toast.LENGTH_SHORT).show()
         }
         // ---------------------------------------------------------
     }
@@ -92,11 +93,7 @@ class MainActivity : Activity(), EmgSensorProvider {
     }
 
     override fun provideEmgSensor(): EmgSensor {
-        return if (BuildConfig.BUILD_TYPE == "debug_with_peripherals") {
-            AdcEmgSensor()
-        } else {
-            DummyEmgSensor()
-        }
+        return DummyEmgSensor()
     }
 
     private fun log(s: String) {
@@ -104,13 +101,12 @@ class MainActivity : Activity(), EmgSensorProvider {
         txtLogging.append("$s\n")
     }
 
-    private fun setupConnectionInfo() {
+    private fun makeDiscoverable() {
 
-        val btMac = ThingsUtils.getBluetoothMacAddress(this)
-        val ipv4 = ThingsUtils.getIPAddress(true)
-
-        val out = "Mac BT: $btMac\nIPv4: $ipv4"
-        txtConnectionInfo.text = out
+        val discoverableSeconds = 60 * 5 // 5 minutes
+        val discoverableIntent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE)
+        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, discoverableSeconds)
+        startActivity(discoverableIntent)
     }
 
     private fun confirmReboot() {
@@ -119,6 +115,10 @@ class MainActivity : Activity(), EmgSensorProvider {
                     DeviceManager().reboot()
                 }
                 .show(fragmentManager, "show-confirm-reboot-dialog")
+    }
+
+    private fun checkForUpdates() {
+        updateManager.checkForUpdates()
     }
 
     companion object {

@@ -7,13 +7,14 @@ import java.util.*
 import kotlin.experimental.and
 
 
-
 /**
  * @author Martin Macheiner
  * Date: 23.01.2018.
  */
 
 object ThingsUtils {
+
+    private const val TAG = "EmgThings"
 
     /**
      * Convert byte array to hex string
@@ -107,6 +108,10 @@ object ThingsUtils {
      * Returns the Mac address of the bluetooth adapter
      */
     fun getBluetoothMacAddress(context: Context): String {
-        return Settings.Secure.getString(context.contentResolver, "bluetooth_address")
+        return try{
+            Settings.Secure.getString(context.contentResolver, "bluetooth_address")
+        } catch (e: Exception) {
+            e.localizedMessage
+        }
     }
 }

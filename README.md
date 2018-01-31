@@ -6,5 +6,6 @@ This project is a part of the EmgFramework project.
 ### Version 1.0
 
 - [x] Bluetooth Connection
+- [x] OTA Update mechanism
 - [ ] Sensor Reading from ADC
-- [ ] Code Cleanup (Remove debugging stuff)
+- [ ] Code Cleanup (Remove debugging stuff + add Dagger)
