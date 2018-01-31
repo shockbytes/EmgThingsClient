@@ -5,71 +5,47 @@ import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
 import android.widget.TextView
 import at.fhooe.mc.emg.client.things.R
 import at.fhooe.mc.emg.client.things.client.ThingsBluetoothClient
-import at.fhooe.mc.emg.client.things.sensing.DummyEmgSensor
-import at.fhooe.mc.emg.client.things.sensing.EmgSensor
-import at.fhooe.mc.emg.client.things.sensing.EmgSensorProvider
+import at.fhooe.mc.emg.client.things.core.EmgThingsApp
 import at.fhooe.mc.emg.client.things.update.EmgUpdateManager
-import at.fhooe.mc.emg.client.things.update.PhoneEmgUpdateManager
+import butterknife.ButterKnife
+import butterknife.OnClick
+import butterknife.Unbinder
 import com.google.android.things.device.DeviceManager
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotterknife.bindView
 import java.util.*
+import javax.inject.Inject
 
-
-/**
- * Skeleton of an Android Things activity.
- *
- * Android Things peripheral APIs are accessible through the class
- * PeripheralManagerService. For example, the snippet below will open a GPIO pin and
- * set it to HIGH:
- *
- * <pre>{@code
- * val service = PeripheralManagerService()
- * val mLedGpio = service.openGpio("BCM6")
- * mLedGpio.setDirection(Gpio.DIRECTION_OUT_INITIALLY_LOW)
- * mLedGpio.value = true
- * }</pre>
- * <p>
- * For more complex peripherals, look for an existing user-space driver, or implement one if none
- * is available.
- *
- * @see <a href="https://github.com/androidthings/contrib-drivers#readme">https://github.com/androidthings/contrib-drivers#readme</a>
- *
- */
-class MainActivity : Activity(), EmgSensorProvider {
+class MainActivity : Activity() {
 
     private val txtDataOutput: TextView by bindView(R.id.txtDataOutput)
-
     private val txtLogging: TextView by bindView(R.id.txtLogging)
-    private val btnDiscoverable: Button by bindView(R.id.btnDiscoverable)
-    private val btnReboot: Button by bindView(R.id.btnReboot)
-    private val btnUpdates: Button by bindView(R.id.btnUpdates)
 
-    private lateinit var btClient: ThingsBluetoothClient
-    private lateinit var updateManager: EmgUpdateManager
+    private var unbinder: Unbinder? = null
+
+    @Inject
+    protected lateinit var btClient: ThingsBluetoothClient
+
+    @Inject
+    protected lateinit var updateManager: EmgUpdateManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        (application as EmgThingsApp).appComponent.inject(this)
         setContentView(R.layout.activity_main)
+        unbinder = ButterKnife.bind(this)
+
         log("Setup EMG client with version ${getString(R.string.client_emg_version)}")
+        log("EmgClient started at ${Date(System.currentTimeMillis())}")
 
-        btClient = ThingsBluetoothClient(this, "EmgBluetooth",
-                provideEmgSensor(), 1000)
         btClient.attachDebugView(txtLogging)
-
-        updateManager = PhoneEmgUpdateManager()
         updateManager.setPolicy(true, 24)
 
-        btnReboot.setOnClickListener { confirmReboot() }
-        btnDiscoverable.setOnClickListener { makeDiscoverable() }
-        btnUpdates.setOnClickListener { checkForUpdates() }
-
-        // TODO Remove in production mode
+        // Remove after testing ADC sensing
         // ---------------------------------------------------------
         btClient.setDebugListener {
             Single.fromCallable {
@@ -82,9 +58,6 @@ class MainActivity : Activity(), EmgSensorProvider {
     override fun onStart() {
         super.onStart()
         btClient.start()
-
-        val d = Date(System.currentTimeMillis())
-        log("EmgClient started at $d")
     }
 
     override fun onStop() {
@@ -92,16 +65,13 @@ class MainActivity : Activity(), EmgSensorProvider {
         btClient.stop()
     }
 
-    override fun provideEmgSensor(): EmgSensor {
-        return DummyEmgSensor()
+    override fun onDestroy() {
+        super.onDestroy()
+        unbinder?.unbind()
     }
 
-    private fun log(s: String) {
-        Log.d(TAG, s)
-        txtLogging.append("$s\n")
-    }
-
-    private fun makeDiscoverable() {
+    @OnClick(R.id.btnDiscoverable)
+    protected fun onClickMakeDiscoverable() {
 
         val discoverableSeconds = 60 * 5 // 5 minutes
         val discoverableIntent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE)
@@ -109,7 +79,8 @@ class MainActivity : Activity(), EmgSensorProvider {
         startActivity(discoverableIntent)
     }
 
-    private fun confirmReboot() {
+    @OnClick(R.id.btnReboot)
+    protected fun onClickAskForReboot() {
         ConfirmRebootDialogFragment.newInstance()
                 .setOnConfirmClickListener {
                     DeviceManager().reboot()
@@ -117,12 +88,14 @@ class MainActivity : Activity(), EmgSensorProvider {
                 .show(fragmentManager, "show-confirm-reboot-dialog")
     }
 
-    private fun checkForUpdates() {
+    @OnClick(R.id.btnUpdates)
+    protected fun onClickCheckForUpdates() {
         updateManager.checkForUpdates()
     }
 
-    companion object {
-
-        private const val TAG = "EmgThings"
+    private fun log(s: String) {
+        Log.d("EmgThings", s)
+        txtLogging.append("$s\n")
     }
+
 }

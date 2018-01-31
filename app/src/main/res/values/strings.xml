@@ -1,6 +1,13 @@
 <resources>
-    <string name="app_name">AndroidThings BluetoothClient</string>
-    <string name="app_version">0.4</string>
+    <string name="app_name">EmgBluetoothClient</string>
+    <string name="app_version">v0.7</string>
+
+    <string name="bluetooth_device_name" translatable="false">EmgBluetooth</string>
 
     <string name="data_provided">Data provided: %s</string>
+    <string name="data_provided_default">Provided data: ---</string>
+
+    <string name="btn_updates">Updates</string>
+    <string name="btn_reboot">Reboot</string>
+    <string name="btn_discoverable">discoverable</string>
 </resources>

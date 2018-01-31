@@ -4,6 +4,8 @@ apply plugin: 'kotlin-android-extensions'
 
 def emgVersion = "0.9.8"
 def rxAndroidVersion = "2.0.1"
+def daggerVersion = "2.11"
+def butterknifeVersion = "8.8.1"
 
 android {
     compileSdkVersion 26
@@ -20,11 +22,21 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             resValue "string", "client_emg_version", emgVersion
+            resValue "string", "platform", "Release"
         }
         debug {
             resValue "string", "client_emg_version", emgVersion
+            resValue "string", "platform", "Debug Phone"
+        }
+        things {
+            resValue "string", "client_emg_version", emgVersion
+            resValue "string", "platform", "Debug Things"
         }
     }
+}
+
+kapt {
+    generateStubs = true
 }
 
 dependencies {
@@ -33,12 +45,17 @@ dependencies {
     compileOnly 'com.google.android.things:androidthings:0.6.1-devpreview'
     implementation 'com.github.ivbaranov:rxbluetooth2:2.0.1'
     implementation 'nz.geek.android.things:things-drivers:1.1.0'
-
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     implementation 'com.jakewharton:kotterknife:0.1.0-SNAPSHOT'
 
     implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
 
+    implementation "com.google.dagger:dagger:$daggerVersion"
+    kapt "com.google.dagger:dagger-compiler:$daggerVersion"
+
+    implementation "com.jakewharton:butterknife:$butterknifeVersion"
+    kapt "com.jakewharton:butterknife-compiler:$butterknifeVersion"
+
     implementation "com.github.shockbytes.EmgFramework:client:$emgVersion"
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
 }
