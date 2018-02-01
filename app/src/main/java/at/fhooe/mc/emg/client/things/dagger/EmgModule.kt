@@ -21,18 +21,18 @@ class EmgModule(private val context: Context) {
 
     @Provides
     @Singleton
-    fun provideThingsBluetoothClient(sensor: EmgSensor,
+    fun provideThingsBluetoothClient(sensors: List<EmgSensor>,
                                      @Named("bt_name") bluetoothName: String): ThingsBluetoothClient {
-        return ThingsBluetoothClient(context, bluetoothName, sensor, 1000)
+        return ThingsBluetoothClient(context, bluetoothName, sensors, 1000)
     }
 
     @Provides
     @Singleton
-    fun provideEmgSensor(): EmgSensor {
+    fun provideEmgSensors(): List<EmgSensor> {
         return if (DeviceConfig.useThingsConfig) {
-            AdcEmgSensor(context)
+            listOf(AdcEmgSensor(context))
         } else {
-            DummyEmgSensor()
+            listOf(DummyEmgSensor())
         }
     }
 

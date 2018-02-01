@@ -21,7 +21,7 @@ import io.reactivex.functions.Consumer
 
 class ThingsBluetoothClient(context: Context,
                             bluetoothName: String,
-                            private val emgSensor: EmgSensor,
+                            private val emgSensors: List<EmgSensor>,
                             initialPeriod: Long = 100) : EmgClient() {
 
     override val protocolVersion = EmgMessaging.ProtocolVersion.V1
@@ -38,7 +38,7 @@ class ThingsBluetoothClient(context: Context,
     }
 
     override fun provideData(): List<Double> {
-        return listOf(emgSensor.provideEmgValue())
+        return emgSensors.map { it.provideEmgValue() }
     }
 
     override fun send(data: String) {
@@ -47,7 +47,7 @@ class ThingsBluetoothClient(context: Context,
     }
 
     override fun setupTransmission() {
-        emgSensor.setup()
+        emgSensors.forEach { it.setup() }
         bluetoothConnection.setup(Consumer {
             debugView?.append("Connected to: $it\n")
             startDataTransfer()
@@ -58,7 +58,7 @@ class ThingsBluetoothClient(context: Context,
     }
 
     override fun tearDown() {
-        emgSensor.tearDown()
+        emgSensors.forEach { it.tearDown() }
         bluetoothConnection.tearDown()
         msgDisposable?.dispose()
     }
