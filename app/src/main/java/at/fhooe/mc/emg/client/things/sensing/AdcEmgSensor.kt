@@ -1,6 +1,6 @@
 package at.fhooe.mc.emg.client.things.sensing
 
-import nz.geek.android.things.drivers.adc.Adc
+import android.content.Context
 import nz.geek.android.things.drivers.adc.I2cAdc
 
 /**
@@ -8,9 +8,9 @@ import nz.geek.android.things.drivers.adc.I2cAdc
  * Date: 24.01.2018.
  */
 
-class AdcEmgSensor: EmgSensor {
+class AdcEmgSensor(private val context: Context) : EmgSensor {
 
-    private var adc: Adc? = null
+    private var adc: I2cAdc? = null
 
     override fun provideEmgValue() = (adc?.readChannel(0) ?: -1).toDouble()
 

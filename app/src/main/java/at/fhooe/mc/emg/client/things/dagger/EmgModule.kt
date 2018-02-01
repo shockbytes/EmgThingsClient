@@ -1,8 +1,8 @@
 package at.fhooe.mc.emg.client.things.dagger
 
 import android.content.Context
-import at.fhooe.mc.emg.client.things.BuildConfig
 import at.fhooe.mc.emg.client.things.client.ThingsBluetoothClient
+import at.fhooe.mc.emg.client.things.core.DeviceConfig
 import at.fhooe.mc.emg.client.things.sensing.AdcEmgSensor
 import at.fhooe.mc.emg.client.things.sensing.DummyEmgSensor
 import at.fhooe.mc.emg.client.things.sensing.EmgSensor
@@ -29,8 +29,8 @@ class EmgModule(private val context: Context) {
     @Provides
     @Singleton
     fun provideEmgSensor(): EmgSensor {
-        return if (BuildConfig.BUILD_TYPE == "things") {
-            AdcEmgSensor()
+        return if (DeviceConfig.useThingsConfig) {
+            AdcEmgSensor(context)
         } else {
             DummyEmgSensor()
         }

@@ -3,6 +3,7 @@
     <string name="app_version">v0.7</string>
 
     <string name="bluetooth_device_name" translatable="false">EmgBluetooth</string>
+    <string name="bluetooth_device_name_phone">EmgBluetoothPhone</string>
 
     <string name="data_provided">Data provided: %s</string>
     <string name="data_provided_default">Provided data: ---</string>

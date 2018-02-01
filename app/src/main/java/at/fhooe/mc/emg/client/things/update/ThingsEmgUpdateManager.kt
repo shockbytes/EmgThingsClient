@@ -14,6 +14,11 @@ class ThingsEmgUpdateManager : EmgUpdateManager {
 
     var policy: Int = UpdateManager.POLICY_APPLY_AND_REBOOT
 
+    init {
+        // Set default policy
+        setPolicy(true, 24)
+    }
+
     override fun setPolicy(withReboot: Boolean, intervalHours: Long) {
         policy = if (withReboot) UpdateManager.POLICY_APPLY_AND_REBOOT else UpdateManager.POLICY_CHECKS_ONLY
         updateManager.setPolicy(UpdatePolicy.Builder()

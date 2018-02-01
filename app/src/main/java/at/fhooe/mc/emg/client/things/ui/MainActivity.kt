@@ -38,12 +38,10 @@ class MainActivity : Activity() {
         (application as EmgThingsApp).appComponent.inject(this)
         setContentView(R.layout.activity_main)
         unbinder = ButterKnife.bind(this)
+        btClient.attachDebugView(txtLogging)
 
         log("Setup EMG client with version ${getString(R.string.client_emg_version)}")
         log("EmgClient started at ${Date(System.currentTimeMillis())}")
-
-        btClient.attachDebugView(txtLogging)
-        updateManager.setPolicy(true, 24)
 
         // Remove after testing ADC sensing
         // ---------------------------------------------------------

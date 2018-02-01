@@ -1,8 +1,8 @@
 package at.fhooe.mc.emg.client.things.dagger
 
 import android.content.Context
-import at.fhooe.mc.emg.client.things.BuildConfig
 import at.fhooe.mc.emg.client.things.R
+import at.fhooe.mc.emg.client.things.core.DeviceConfig
 import at.fhooe.mc.emg.client.things.update.EmgUpdateManager
 import at.fhooe.mc.emg.client.things.update.PhoneEmgUpdateManager
 import at.fhooe.mc.emg.client.things.update.ThingsEmgUpdateManager
@@ -23,18 +23,21 @@ class AppModule(private val context: Context) {
     @Singleton
     @Named("bt_name")
     fun provideBluetoothDeviceName(): String {
-        return context.getString(R.string.bluetooth_device_name)
+        return if (DeviceConfig.useThingsConfig) {
+            context.getString(R.string.bluetooth_device_name)
+        } else {
+            context.getString(R.string.bluetooth_device_name_phone)
+        }
     }
 
     @Provides
     @Singleton
     fun provideEmgUpdateManager(): EmgUpdateManager {
-        return if (BuildConfig.BUILD_TYPE == "things") {
+        return if (DeviceConfig.useThingsConfig) {
             ThingsEmgUpdateManager()
         } else {
             PhoneEmgUpdateManager()
         }
     }
-
 
 }
