@@ -1,14 +1,9 @@
 <resources>
-    <string name="app_name">EmgBluetoothClient</string>
-    <string name="app_version">v0.7</string>
+    <string name="app_name">Android Things Emg BluetoothClient v1.0b</string>
 
     <string name="bluetooth_device_name" translatable="false">EmgBluetooth</string>
-    <string name="bluetooth_device_name_phone">EmgBluetoothPhone</string>
+    <string name="bluetooth_device_name_phone" translatable="false">EmgBluetoothDebug</string>
 
-    <string name="data_provided">Data provided: %s</string>
-    <string name="data_provided_default">Provided data: ---</string>
+    <string name="header">Android Things Emg BluetoothClient v1.0b</string>
 
-    <string name="btn_updates">Updates</string>
-    <string name="btn_reboot">Reboot</string>
-    <string name="btn_discoverable">discoverable</string>
 </resources>

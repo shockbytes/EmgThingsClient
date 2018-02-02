@@ -9,7 +9,7 @@ class DummyEmgSensor: EmgSensor {
 
     var data = 0.0
 
-    override fun provideEmgValue() = data++
+    override fun provideEmgValues() = listOf(data++)
 
     override fun setup() {
         // Do nothing

@@ -1,11 +1,11 @@
 package at.fhooe.mc.emg.client.things.dagger
 
 import android.content.Context
+import at.fhooe.mc.emg.client.things.BuildConfig
 import at.fhooe.mc.emg.client.things.client.ThingsBluetoothClient
-import at.fhooe.mc.emg.client.things.core.DeviceConfig
-import at.fhooe.mc.emg.client.things.sensing.AdcEmgSensor
 import at.fhooe.mc.emg.client.things.sensing.DummyEmgSensor
 import at.fhooe.mc.emg.client.things.sensing.EmgSensor
+import at.fhooe.mc.emg.client.things.sensing.I2cAdcEmgSensor
 import dagger.Module
 import dagger.Provides
 import javax.inject.Named
@@ -21,18 +21,18 @@ class EmgModule(private val context: Context) {
 
     @Provides
     @Singleton
-    fun provideThingsBluetoothClient(sensors: List<EmgSensor>,
+    fun provideThingsBluetoothClient(sensor: EmgSensor,
                                      @Named("bt_name") bluetoothName: String): ThingsBluetoothClient {
-        return ThingsBluetoothClient(context, bluetoothName, sensors, 1000)
+        return ThingsBluetoothClient(context, bluetoothName, sensor)
     }
 
     @Provides
     @Singleton
-    fun provideEmgSensors(): List<EmgSensor> {
-        return if (DeviceConfig.useThingsConfig) {
-            listOf(AdcEmgSensor(context))
+    fun provideEmgSensors(): EmgSensor {
+        return if (BuildConfig.BUILD_TYPE == "things") {
+            I2cAdcEmgSensor()
         } else {
-            listOf(DummyEmgSensor())
+            DummyEmgSensor()
         }
     }
 

@@ -8,11 +8,11 @@ def daggerVersion = "2.11"
 def butterknifeVersion = "8.8.1"
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 27
     defaultConfig {
         applicationId "at.fhooe.mc.emg.client.things"
         minSdkVersion 24
-        targetSdkVersion 26
+        targetSdkVersion 27
         versionCode 1
         versionName "1.0"
         vectorDrawables.useSupportLibrary = true
@@ -31,6 +31,8 @@ android {
         things {
             resValue "string", "client_emg_version", emgVersion
             resValue "string", "platform", "Debug Things"
+            debuggable true
+            signingConfig signingConfigs.debug
         }
     }
 }
@@ -40,22 +42,17 @@ kapt {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     compileOnly 'com.google.android.things:androidthings:0.6.1-devpreview'
     implementation 'com.github.ivbaranov:rxbluetooth2:2.0.1'
     implementation 'nz.geek.android.things:things-drivers:1.1.0'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     implementation 'com.jakewharton:kotterknife:0.1.0-SNAPSHOT'
-
     implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
-
     implementation "com.google.dagger:dagger:$daggerVersion"
     kapt "com.google.dagger:dagger-compiler:$daggerVersion"
-
     implementation "com.jakewharton:butterknife:$butterknifeVersion"
     kapt "com.jakewharton:butterknife-compiler:$butterknifeVersion"
-
     implementation "com.github.shockbytes.EmgFramework:client:$emgVersion"
-    implementation"org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 }

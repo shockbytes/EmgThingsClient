@@ -7,8 +7,13 @@ import at.fhooe.mc.emg.client.things.bluetooth.EmgBluetoothConnection
 import at.fhooe.mc.emg.client.things.bluetooth.RxEmgBluetoothConnection
 import at.fhooe.mc.emg.client.things.sensing.EmgSensor
 import at.fhooe.mc.emg.messaging.EmgMessaging
+import com.google.android.things.pio.Gpio
+import com.google.android.things.pio.PeripheralManagerService
 import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Consumer
+import io.reactivex.subjects.PublishSubject
+import java.io.IOException
+
 
 /**
  * @author Martin Macheiner
@@ -21,16 +26,17 @@ import io.reactivex.functions.Consumer
 
 class ThingsBluetoothClient(context: Context,
                             bluetoothName: String,
-                            private val emgSensors: List<EmgSensor>,
+                            private val emgSensor: EmgSensor,
                             initialPeriod: Long = 100) : EmgClient() {
 
     override val protocolVersion = EmgMessaging.ProtocolVersion.V1
 
-    private val bluetoothConnection: EmgBluetoothConnection
+    var debugLogView: TextView? = null
+    var debugDataSubject: PublishSubject<String> = PublishSubject.create()
 
-    private var debugListener: ((String) -> Unit)? = null
-    private var debugView: TextView? = null
     private var msgDisposable: Disposable? = null
+    private var gpioLed: Gpio? = null
+    private val bluetoothConnection: EmgBluetoothConnection
 
     init {
         period = initialPeriod
@@ -38,33 +44,33 @@ class ThingsBluetoothClient(context: Context,
     }
 
     override fun provideData(): List<Double> {
-        return emgSensors.map { it.provideEmgValue() }
+        return emgSensor.provideEmgValues()
     }
 
     override fun send(data: String) {
-        debugListener?.invoke(data)
+        debugDataSubject.onNext(data)
         bluetoothConnection.sendMessage(data)
     }
 
     override fun setupTransmission() {
-        emgSensors.forEach { it.setup() }
+        emgSensor.setup()
+        setupLed()
         bluetoothConnection.setup(Consumer {
-            debugView?.append("Connected to: $it\n")
+            debugLogView?.append("Connected to: $it\n")
+            gpioLed?.value = true
             startDataTransfer()
         }, Consumer {
-            debugView?.append("Bluetooth connection error: $it\n")
+            debugLogView?.append("Bluetooth connection error: $it\n")
+            gpioLed?.value = false
         })
         // If connected request read access and integrate #handleMessage()
     }
 
     override fun tearDown() {
-        emgSensors.forEach { it.tearDown() }
+        emgSensor.tearDown()
         bluetoothConnection.tearDown()
         msgDisposable?.dispose()
-    }
-
-    fun attachDebugView(textView: TextView) {
-        this.debugView = textView
+        gpioLed?.close()
     }
 
     private fun startDataTransfer() {
@@ -82,15 +88,22 @@ class ThingsBluetoothClient(context: Context,
     private fun closeConnectionAfterDisconnect() {
         stopTransmission()
         bluetoothConnection.closeAfterDisconnect()
-        debugView?.append("Disconnected from remote device\n")
+        debugLogView?.append("Remote device disconnected\n")
         msgDisposable?.dispose()
+        gpioLed?.value = false
     }
 
-    // TODO Remove in production code
-    // --------------------------------------------------
-    fun setDebugListener(listener: (String) -> Unit) {
-        this.debugListener = listener
+    private fun setupLed() {
+
+        try {
+            val manager = PeripheralManagerService()
+            gpioLed = manager.openGpio("BCM7")
+            gpioLed?.setDirection(Gpio.DIRECTION_OUT_INITIALLY_LOW)
+            gpioLed?.setActiveType(Gpio.ACTIVE_HIGH)
+        } catch (e: IOException) {
+            e.printStackTrace()
+            debugLogView?.append("Unable to open LED port")
+        }
     }
-    // --------------------------------------------------
 
 }

@@ -1,6 +1,5 @@
 package at.fhooe.mc.emg.client.things.sensing
 
-import android.content.Context
 import nz.geek.android.things.drivers.adc.I2cAdc
 
 /**
@@ -8,17 +7,19 @@ import nz.geek.android.things.drivers.adc.I2cAdc
  * Date: 24.01.2018.
  */
 
-class AdcEmgSensor(private val context: Context) : EmgSensor {
+class I2cAdcEmgSensor(private val channels: List<Int> = listOf(0)) : EmgSensor {
 
     private var adc: I2cAdc? = null
 
-    override fun provideEmgValue() = (adc?.readChannel(0) ?: -1).toDouble()
+    override fun provideEmgValues(): List<Double> {
+        return channels.map { channel -> (adc?.readChannel(channel) ?: -1).toDouble() }
+    }
 
     override fun setup() {
 
         // Setup adc converter for reading analog signal
         adc = I2cAdc.builder()
-                .address(0x48)
+                .address(0x00)
                 .fourSingleEnded()
                 .withConversionRate(100)
                 .build()
