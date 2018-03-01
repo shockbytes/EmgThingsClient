@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Android Things Emg BluetoothClient v1.0b</string>
 
-    <string name="bluetooth_device_name" translatable="false">EmgBluetooth</string>
-    <string name="bluetooth_device_name_phone" translatable="false">EmgBluetoothDebug</string>
+    <string name="bluetooth_device_name" translatable="false">EmgBluetoothClient</string>
+    <string name="bluetooth_device_name_phone" translatable="false">EmgBluetoothClientDebug</string>
 
     <string name="header">Android Things Emg BluetoothClient v1.0b</string>
 

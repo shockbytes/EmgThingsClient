@@ -1,7 +1,8 @@
-package at.fhooe.mc.emg.client.things.bluetooth
+package at.fhooe.mc.emg.client.things.connection
 
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
+import at.fhooe.mc.emg.client.connection.EmgConnection
 import com.github.ivbaranov.rxbluetooth.BluetoothConnection
 import com.github.ivbaranov.rxbluetooth.RxBluetooth
 import io.reactivex.Flowable
@@ -17,8 +18,8 @@ import java.util.*
  * Date: 24.01.2018.
  */
 
-class RxEmgBluetoothConnection(context: Context,
-                               private val bluetoothName: String) : EmgBluetoothConnection {
+class EmgBluetoothConnection(context: Context,
+                             private val bluetoothName: String): EmgConnection {
 
     private var rxBluetooth = RxBluetooth(context)
     private var bluetoothAdapter: BluetoothAdapter? = null
@@ -72,7 +73,7 @@ class RxEmgBluetoothConnection(context: Context,
                 ?: Flowable.error(NullPointerException("Incoming messages - Connection is null!"))
     }
 
-    override fun closeAfterDisconnect() {
+    override fun cleanupAfterDisconnect() {
         connectionDisposable?.dispose()
         connectedDeviceName = null
         connection?.closeConnection()

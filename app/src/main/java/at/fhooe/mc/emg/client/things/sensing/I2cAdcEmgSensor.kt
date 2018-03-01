@@ -1,5 +1,6 @@
 package at.fhooe.mc.emg.client.things.sensing
 
+import at.fhooe.mc.emg.client.sensing.EmgSensor
 import nz.geek.android.things.drivers.adc.I2cAdc
 
 /**
@@ -7,7 +8,7 @@ import nz.geek.android.things.drivers.adc.I2cAdc
  * Date: 24.01.2018.
  */
 
-class I2cAdcEmgSensor(private val channels: List<Int> = listOf(0)) : EmgSensor {
+class I2cAdcEmgSensor(private val channels: List<Int> = listOf(0)): EmgSensor {
 
     private var adc: I2cAdc? = null
 

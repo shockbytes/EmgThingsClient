@@ -1,5 +1,7 @@
 package at.fhooe.mc.emg.client.things.sensing
 
+import at.fhooe.mc.emg.client.sensing.EmgSensor
+
 /**
  * @author Martin Macheiner
  * Date: 24.01.2018.
