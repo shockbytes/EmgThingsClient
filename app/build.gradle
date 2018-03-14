@@ -1,8 +1,9 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
-def emgVersion = "0.9.9.1"
+def emgVersion = "0.9.9.3"
 def rxAndroidVersion = "2.0.1"
 def daggerVersion = "2.11"
 def butterknifeVersion = "8.8.1"
@@ -37,15 +38,11 @@ android {
     }
 }
 
-kapt {
-    generateStubs = true
-}
-
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    compileOnly 'com.google.android.things:androidthings:0.6.1-devpreview'
+    compileOnly 'com.google.android.things:androidthings:0.7-devpreview'
     implementation 'com.github.ivbaranov:rxbluetooth2:2.0.1'
-    implementation 'nz.geek.android.things:things-drivers:1.1.0'
+    implementation 'nz.geek.android.things:things-drivers:1.7.0'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     implementation 'com.jakewharton:kotterknife:0.1.0-SNAPSHOT'
     implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"

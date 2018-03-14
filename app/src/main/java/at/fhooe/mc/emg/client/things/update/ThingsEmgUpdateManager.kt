@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit
  */
 class ThingsEmgUpdateManager : EmgUpdateManager {
 
-    private val updateManager: UpdateManager = UpdateManager()
+    private val updateManager: UpdateManager = UpdateManager.getInstance()
 
     var policy: Int = UpdateManager.POLICY_APPLY_AND_REBOOT
 

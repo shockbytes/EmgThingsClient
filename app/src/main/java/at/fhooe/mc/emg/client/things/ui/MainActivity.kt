@@ -13,21 +13,25 @@ import at.fhooe.mc.emg.client.things.client.ThingsBluetoothClient
 import at.fhooe.mc.emg.client.things.core.EmgThingsApp
 import at.fhooe.mc.emg.client.things.update.EmgUpdateManager
 import at.fhooe.mc.emg.client.things.util.ThingsUtils
+import at.fhooe.mc.emg.messaging.model.EmgPacket
 import butterknife.ButterKnife
 import butterknife.OnClick
 import butterknife.Unbinder
 import com.google.android.things.device.DeviceManager
+import hu.akarnokd.rxjava.interop.RxJavaInterop
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import kotterknife.bindView
+import rx.Single
 import java.util.*
 import javax.inject.Inject
 
 class MainActivity : Activity() {
 
-    private val txtLogging: TextView by bindView(R.id.txtLogging)
-    private val txtDataOutput: TextView by bindView(R.id.txtData)
+    private val txtEmgData: TextView by bindView(R.id.txtEmg)
+    private val txtPulseData: TextView by bindView(R.id.txtPulse)
+
+    private val txtLogView: TextView by bindView(R.id.txtLogging)
     private val scrollViewLogging: ScrollView by bindView(R.id.scrollViewLogging)
 
     private var unbinder: Unbinder? = null
@@ -44,6 +48,7 @@ class MainActivity : Activity() {
         (application as EmgThingsApp).appComponent.inject(this)
         setContentView(R.layout.activity_main)
         unbinder = ButterKnife.bind(this)
+
         startupLog()
         setupDebugComponents()
     }
@@ -83,7 +88,7 @@ class MainActivity : Activity() {
     protected fun onClickAskForReboot() {
         ConfirmRebootDialogFragment.newInstance()
                 .setOnConfirmClickListener {
-                    DeviceManager().reboot()
+                    DeviceManager.getInstance().reboot()
                 }
                 .show(fragmentManager, "show-confirm-reboot-dialog")
     }
@@ -96,7 +101,7 @@ class MainActivity : Activity() {
 
     private fun log(s: String) {
         Log.d("EmgThings", s)
-        txtLogging.append("$s\n")
+        txtLogView.append("$s\n")
         scrollViewLogging.fullScroll(ScrollView.FOCUS_DOWN)
     }
 
@@ -111,12 +116,14 @@ class MainActivity : Activity() {
     }
 
     private fun setupDebugComponents() {
-        btClient.debugLogView = txtLogging
+        btClient.debugLogView = txtLogView
 
-        debugDataDisposable = btClient.debugDataSubject
-                .subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { txtDataOutput.text = it }
+        btClient.debugDataListener = { packet: EmgPacket ->
+            Single.fromCallable {
+                txtEmgData.text = packet.channels[0].toString()
+                txtPulseData.text = packet.heartRate.toString()
+            }.subscribeOn(RxJavaInterop.toV1Scheduler(AndroidSchedulers.mainThread())).subscribe()
+        }
     }
 
 }

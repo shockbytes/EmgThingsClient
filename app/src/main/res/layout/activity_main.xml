@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:keepScreenOn="true"
@@ -10,7 +9,7 @@
 
     <ImageButton
         android:id="@+id/btnDiscoverable"
-        style="@style/Widget.AppCompat.Button.Borderless"
+        style="?android:borderlessButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -24,7 +23,7 @@
 
     <ImageButton
         android:id="@+id/btnReboot"
-        style="@style/Widget.AppCompat.Button.Borderless"
+        style="?android:borderlessButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -37,7 +36,7 @@
 
     <ImageButton
         android:id="@+id/btnUpdates"
-        style="@style/Widget.AppCompat.Button.Borderless"
+        style="?android:borderlessButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -50,7 +49,7 @@
 
     <ImageButton
         android:id="@+id/btnIp"
-        style="@style/Widget.AppCompat.Button.Borderless"
+        style="?android:borderlessButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -96,7 +95,7 @@
     </ScrollView>
 
     <TextView
-        android:id="@+id/txtData"
+        android:id="@+id/txtEmg"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
@@ -105,7 +104,23 @@
         android:drawableTop="@drawable/ic_data"
         android:fontFamily="sans-serif-light"
         android:gravity="center"
+        android:text="---"
         app:layout_constraintBottom_toTopOf="@+id/guideline2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideline" />
+
+    <TextView
+        android:id="@+id/txtPulse"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:drawableTop="@drawable/ic_heart_rate"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center"
+        android:text="---"
+        app:layout_constraintBottom_toTopOf="@+id/txtEmg"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline" />
 

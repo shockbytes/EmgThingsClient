@@ -14,8 +14,8 @@ import io.reactivex.schedulers.Schedulers
 import rx.Subscription
 
 /**
- * @author Martin Macheiner
- * Date: 07.02.2018.
+ * @author  Martin Macheiner
+ * Date:    07.02.2018.
  */
 
 class BleHeartRateProvider(private val context: Context,
@@ -35,12 +35,15 @@ class BleHeartRateProvider(private val context: Context,
         this.heartRateCallback = callback
     }
 
-    override fun subscribeForConnectionChanges(callback: (HeartRateProvider.ConnectionState) -> Unit) {
+    override fun subscribeToConnectionChanges(callback: (HeartRateProvider.ConnectionState) -> Unit) {
         this.stateCallback = callback
     }
 
-    override fun start() {
+    override fun unsubscribeToConnectionChanges() {
+        stateCallback = null
+    }
 
+    override fun start() {
         val device: RxBleDevice = bleClient.getBleDevice(macAddress)
         observeConnectionChanges(device)
         setupHeartRateNotification(device)
@@ -63,7 +66,6 @@ class BleHeartRateProvider(private val context: Context,
     }
 
     private fun observeConnectionChanges(device: RxBleDevice) {
-
         stateSubscription = device.observeConnectionStateChanges()
                 .subscribeOn(RxJavaInterop.toV1Scheduler(Schedulers.io()))
                 .observeOn(RxJavaInterop.toV1Scheduler(AndroidSchedulers.mainThread()))
@@ -71,6 +73,7 @@ class BleHeartRateProvider(private val context: Context,
                     when (it) {
                         RxBleConnection.RxBleConnectionState.CONNECTING -> {
                             Log.d(TAG, "Connecting")
+                            stateCallback?.invoke(HeartRateProvider.ConnectionState.CONNECTING)
                         }
                         RxBleConnection.RxBleConnectionState.CONNECTED -> {
                             Log.d(TAG, "Connected")
@@ -92,8 +95,6 @@ class BleHeartRateProvider(private val context: Context,
     }
 
     private fun setupHeartRateNotification(device: RxBleDevice) {
-
-
         bleSubscription = device.establishConnection(true)
                 .doOnUnsubscribe(this::stop)
                 .flatMap { rxBleConnection -> rxBleConnection.setupNotification(characteristic) }
@@ -101,13 +102,11 @@ class BleHeartRateProvider(private val context: Context,
                     // Notification has been set up
                 }
                 .flatMap { notificationObservable -> notificationObservable } // <-- Notification has been set up, now observe value changes.
+                .map { ValueInterpreter.getIntValue(it, ValueInterpreter.FORMAT_UINT8, 1) }
                 .subscribeOn(RxJavaInterop.toV1Scheduler(Schedulers.io()))
                 .observeOn(RxJavaInterop.toV1Scheduler(AndroidSchedulers.mainThread()))
-                .subscribe({
-
-                    val hr = ValueInterpreter.getIntValue(it, ValueInterpreter.FORMAT_UINT8, 1)
+                .subscribe({ hr ->
                     heartRateCallback?.invoke(hr)
-
                 }, { t: Throwable ->
                     t.printStackTrace()
                     Toast.makeText(context, t.localizedMessage, Toast.LENGTH_LONG).show()
