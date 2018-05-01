@@ -3,8 +3,8 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
-def emgVersion = "0.9.9.3"
-def rxAndroidVersion = "2.0.1"
+def emgVersion = "1.0.0"
+def rxAndroidVersion = "2.0.2"
 def daggerVersion = "2.11"
 def butterknifeVersion = "8.8.1"
 
@@ -43,7 +43,7 @@ dependencies {
     compileOnly 'com.google.android.things:androidthings:0.7-devpreview'
     implementation 'com.github.ivbaranov:rxbluetooth2:2.0.1'
     implementation 'nz.geek.android.things:things-drivers:1.7.0'
-    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
     implementation 'com.jakewharton:kotterknife:0.1.0-SNAPSHOT'
     implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
     implementation "com.google.dagger:dagger:$daggerVersion"
